@@ -92,6 +92,18 @@ const validateCreateTask = [
     .optional()
     .isIn(['low', 'medium', 'high'])
     .withMessage('Priority must be low, medium, or high'),
+  body('category')
+    .optional()
+    .isIn(['study', 'work', 'personal', 'health', 'finance', 'errand', 'other'])
+    .withMessage('Category must be study, work, personal, health, finance, errand, or other'),
+  body('estimatedMinutes')
+    .optional()
+    .isInt({ min: 15, max: 720 })
+    .withMessage('Estimated minutes must be between 15 and 720'),
+  body('energyLevel')
+    .optional()
+    .isIn(['low', 'medium', 'high'])
+    .withMessage('Energy level must be low, medium, or high'),
   body('tags')
     .optional()
     .isArray()
@@ -131,6 +143,18 @@ const validateUpdateTask = [
     .optional()
     .isIn(['low', 'medium', 'high'])
     .withMessage('Priority must be low, medium, or high'),
+  body('category')
+    .optional()
+    .isIn(['study', 'work', 'personal', 'health', 'finance', 'errand', 'other'])
+    .withMessage('Category must be study, work, personal, health, finance, errand, or other'),
+  body('estimatedMinutes')
+    .optional()
+    .isInt({ min: 15, max: 720 })
+    .withMessage('Estimated minutes must be between 15 and 720'),
+  body('energyLevel')
+    .optional()
+    .isIn(['low', 'medium', 'high'])
+    .withMessage('Energy level must be low, medium, or high'),
   body('tags')
     .optional()
     .isArray()
@@ -160,6 +184,33 @@ const validatePagination = [
     .optional()
     .isInt({ min: 1, max: 100 })
     .withMessage('Limit must be between 1 and 100'),
+  query('category')
+    .optional()
+    .isIn(['study', 'work', 'personal', 'health', 'finance', 'errand', 'other'])
+    .withMessage('Invalid category'),
+  query('energyLevel')
+    .optional()
+    .isIn(['low', 'medium', 'high'])
+    .withMessage('Invalid energy level'),
+  handleValidationErrors,
+];
+
+/**
+ * Focus Planner Validation
+ */
+const validateFocusPlan = [
+  query('availableMinutes')
+    .optional()
+    .isInt({ min: 15, max: 480 })
+    .withMessage('Available minutes must be between 15 and 480'),
+  query('energyLevel')
+    .optional()
+    .isIn(['low', 'medium', 'high'])
+    .withMessage('Energy level must be low, medium, or high'),
+  query('category')
+    .optional()
+    .isIn(['study', 'work', 'personal', 'health', 'finance', 'errand', 'other'])
+    .withMessage('Invalid category'),
   handleValidationErrors,
 ];
 
@@ -170,5 +221,6 @@ export {
   validateUpdateTask,
   validateTaskId,
   validatePagination,
+  validateFocusPlan,
   handleValidationErrors,
 };

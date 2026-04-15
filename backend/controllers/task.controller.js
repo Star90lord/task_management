@@ -36,6 +36,8 @@ const getAllTasks = async (req, res, next) => {
     const filters = {
       status: req.query.status,
       priority: req.query.priority,
+      category: req.query.category,
+      energyLevel: req.query.energyLevel,
       tags: req.query.tags,
       searchTerm: req.query.search,
     };
@@ -46,6 +48,33 @@ const getAllTasks = async (req, res, next) => {
       success: true,
       statusCode: 200,
       message: 'Tasks fetched successfully',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @route   GET /api/tasks/focus-plan
+ * @desc    Get a smart focus plan for the user's next work session
+ * @access  Private
+ */
+const getFocusPlan = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const options = {
+      availableMinutes: parseInt(req.query.availableMinutes) || 120,
+      energyLevel: req.query.energyLevel || 'medium',
+      category: req.query.category,
+    };
+
+    const result = await TaskService.getFocusPlan(userId, options);
+
+    res.status(200).json({
+      success: true,
+      statusCode: 200,
+      message: 'Focus plan generated successfully',
       data: result,
     });
   } catch (error) {
@@ -173,6 +202,7 @@ const getOverdueTasks = async (req, res, next) => {
 export {
   createTask,
   getAllTasks,
+  getFocusPlan,
   getTaskById,
   updateTask,
   deleteTask,

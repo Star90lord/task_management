@@ -47,6 +47,29 @@ const taskSchema = new mongoose.Schema(
       default: 'medium',
       index: true,
     },
+    category: {
+      type: String,
+      enum: {
+        values: ['study', 'work', 'personal', 'health', 'finance', 'errand', 'other'],
+        message: '{VALUE} is not a valid task category',
+      },
+      default: 'other',
+      index: true,
+    },
+    estimatedMinutes: {
+      type: Number,
+      min: [15, 'Estimated time must be at least 15 minutes'],
+      max: [720, 'Estimated time cannot exceed 720 minutes'],
+      default: null,
+    },
+    energyLevel: {
+      type: String,
+      enum: {
+        values: ['low', 'medium', 'high'],
+        message: '{VALUE} is not a valid energy level',
+      },
+      default: 'medium',
+    },
     tags: [
       {
         type: String,
@@ -68,6 +91,7 @@ const taskSchema = new mongoose.Schema(
 taskSchema.index({ userId: 1, status: 1 });
 taskSchema.index({ userId: 1, dueDate: 1 });
 taskSchema.index({ userId: 1, priority: 1 });
+taskSchema.index({ userId: 1, category: 1 });
 taskSchema.index({ createdAt: -1 });
 
 // Middleware to set completedAt when status changes to completed

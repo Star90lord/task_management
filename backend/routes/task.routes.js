@@ -2,6 +2,7 @@ import express from 'express';
 import {
   createTask,
   getAllTasks,
+  getFocusPlan,
   getTaskById,
   updateTask,
   deleteTask,
@@ -14,9 +15,19 @@ import {
   validateUpdateTask,
   validateTaskId,
   validatePagination,
+  validateFocusPlan,
 } from '../middleware/validation.middleware.js';
 
 const router = express.Router();
+const reservedTaskRoutes = new Set(['focus-plan', 'stats', 'overdue']);
+
+const skipReservedTaskRoutes = (req, res, next) => {
+  if (reservedTaskRoutes.has(req.params.taskId)) {
+    return next('route');
+  }
+
+  return next();
+};
 
 // Apply auth middleware to all task routes
 router.use(authMiddleware);
@@ -34,6 +45,13 @@ router.post('/', validateCreateTask, createTask);
  * @access  Private
  */
 router.get('/', validatePagination, getAllTasks);
+
+/**
+ * @route   GET /api/tasks/focus-plan
+ * @desc    Generate a smart focus plan based on time and energy
+ * @access  Private
+ */
+router.get('/focus-plan', validateFocusPlan, getFocusPlan);
 
 /**
  * @route   GET /api/tasks/stats
@@ -54,20 +72,20 @@ router.get('/overdue', getOverdueTasks);
  * @desc    Get a single task by ID
  * @access  Private
  */
-router.get('/:taskId', validateTaskId, getTaskById);
+router.get('/:taskId', skipReservedTaskRoutes, validateTaskId, getTaskById);
 
 /**
  * @route   PATCH /api/tasks/:taskId
  * @desc    Update a task
  * @access  Private
  */
-router.patch('/:taskId', validateTaskId, validateUpdateTask, updateTask);
+router.patch('/:taskId', skipReservedTaskRoutes, validateTaskId, validateUpdateTask, updateTask);
 
 /**
  * @route   DELETE /api/tasks/:taskId
  * @desc    Delete a task
  * @access  Private
  */
-router.delete('/:taskId', validateTaskId, deleteTask);
+router.delete('/:taskId', skipReservedTaskRoutes, validateTaskId, deleteTask);
 
 export default router;
