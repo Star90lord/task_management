@@ -11,6 +11,7 @@ const errorMiddleware = (err, req, res, next) => {
     timestamp: new Date().toISOString(),
     path: req.path,
   });
+  console.error(err.stack);
 
   // If already an ApiError
   if (err instanceof ApiError) {

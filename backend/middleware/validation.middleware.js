@@ -5,16 +5,22 @@ import ApiError from '../utils/ApiError.js';
  * Validation middleware to handle express-validator errors
  */
 const handleValidationErrors = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    const fieldErrors = errors.array().map((error) => ({
-      field: error.param,
-      message: error.msg,
-    }));
-    const apiError = new ApiError(400, 'Validation failed', fieldErrors);
-    return res.status(apiError.statusCode).json(apiError.toJSON());
+  try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      const fieldErrors = errors.array().map((error) => ({
+        field: error.param,
+        message: error.msg,
+      }));
+
+      const apiError = new ApiError(400, 'Validation failed', fieldErrors);
+      return res.status(apiError.statusCode).json(apiError.toJSON());
+    }
+    return next(); // ✅ explicitly return
+  } catch (err) {
+    return next(err); // ✅ ensure next exists
   }
-  next();
 };
 
 /**

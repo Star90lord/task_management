@@ -71,13 +71,12 @@ taskSchema.index({ userId: 1, priority: 1 });
 taskSchema.index({ createdAt: -1 });
 
 // Middleware to set completedAt when status changes to completed
-taskSchema.pre('save', function (next) {
+taskSchema.pre('save', function () {
   if (this.status === 'completed' && !this.completedAt) {
     this.completedAt = new Date();
   } else if (this.status !== 'completed') {
     this.completedAt = null;
   }
-  next();
 });
 
 // Virtual for days until due
