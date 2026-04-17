@@ -8,8 +8,11 @@ const MONGO_URI = process.env.MONGO_URI;
 
 // MongoDB Connection
 const connectMongo = async () => {
+  if (!MONGO_URI) {
+    throw new Error('MONGO_URI environment variable is required');
+  }
+
   try {
-    // Override local DNS just for Node to bypass ISP blocks on SRV records
     dns.setServers(['8.8.8.8', '8.8.4.4']);
 
     await mongoose.connect(MONGO_URI, {
@@ -21,8 +24,7 @@ const connectMongo = async () => {
     return mongoose.connection;
   } catch (error) {
     console.error('✗ MongoDB Connection Error:', error.message);
-    console.log('⚠ MongoDB connection failed, but server will continue. Some features may not work.');
-    return null;
+    throw error;
   }
 };
 

@@ -1,5 +1,7 @@
 import Task from '../models/task.model.js';
 import ApiError from '../utils/ApiError.js';
+import { scheduleReminder, cancelReminder } from './reminder.service.js';
+import { sendTaskCompletedWebhook } from './webhook.service.js';
 
 const PRIORITY_SCORES = {
   low: 10,
@@ -139,6 +141,10 @@ class TaskService {
 
       await task.save();
 
+      if (task.dueDate && task.status !== 'completed') {
+        scheduleReminder(task);
+      }
+
       return {
         success: true,
         task: task.toJSON(),
@@ -232,7 +238,7 @@ class TaskService {
       if (error instanceof ApiError) {
         throw error;
       }
-      if (error.kind === 'ObjectId') {
+      if (error.name === 'CastError' || error.kind === 'ObjectId') {
         throw new ApiError(400, 'Invalid task ID');
       }
       throw new ApiError(500, error.message || 'Failed to fetch task');
@@ -250,6 +256,16 @@ class TaskService {
       delete updateData.createdAt;
       delete updateData.updatedAt;
 
+      // Get the old task for comparison
+      const oldTask = await Task.findOne({
+        _id: taskId,
+        userId: userId.toString(),
+      });
+
+      if (!oldTask) {
+        throw new ApiError(404, 'Task not found or unauthorized');
+      }
+
       if (updateData.status === 'completed') {
         updateData.completedAt = new Date();
       } else if (updateData.status && updateData.status !== 'completed') {
@@ -265,8 +281,18 @@ class TaskService {
         { new: true, runValidators: true }
       );
 
-      if (!task) {
-        throw new ApiError(404, 'Task not found or unauthorized');
+      // Handle reminders and webhooks
+      // Cancel existing reminder
+      cancelReminder(taskId);
+
+      // If status changed to completed, send webhook
+      if (updateData.status === 'completed' && oldTask.status !== 'completed') {
+        sendTaskCompletedWebhook(task);
+      }
+
+      // Schedule new reminder if due date is set and not completed
+      if (task.dueDate && task.status !== 'completed') {
+        scheduleReminder(task);
       }
 
       return {
@@ -281,7 +307,7 @@ class TaskService {
         const messages = Object.values(error.errors).map((e) => e.message);
         throw new ApiError(400, 'Validation failed', messages);
       }
-      if (error.kind === 'ObjectId') {
+      if (error.name === 'CastError' || error.kind === 'ObjectId') {
         throw new ApiError(400, 'Invalid task ID');
       }
       throw new ApiError(500, error.message || 'Failed to update task');
@@ -302,6 +328,9 @@ class TaskService {
         throw new ApiError(404, 'Task not found or unauthorized');
       }
 
+      // Cancel any existing reminder
+      cancelReminder(taskId);
+
       return {
         success: true,
         message: 'Task deleted successfully',
@@ -310,7 +339,7 @@ class TaskService {
       if (error instanceof ApiError) {
         throw error;
       }
-      if (error.kind === 'ObjectId') {
+      if (error.name === 'CastError' || error.kind === 'ObjectId') {
         throw new ApiError(400, 'Invalid task ID');
       }
       throw new ApiError(500, error.message || 'Failed to delete task');

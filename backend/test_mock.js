@@ -1,6 +1,5 @@
 import app from './app.js';
 import request from 'supertest';
-import mongoose from 'mongoose';
 
 async function test() {
   try {

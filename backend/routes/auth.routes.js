@@ -10,6 +10,8 @@ import authMiddleware from '../middleware/auth.middleware.js';
 import {
   validateUserRegistration,
   validateUserLogin,
+  validateUpdateProfile,
+  validateChangePassword,
 } from '../middleware/validation.middleware.js';
 
 const router = express.Router();
@@ -40,13 +42,13 @@ router.get('/profile', authMiddleware, getProfile);
  * @desc    Update user profile
  * @access  Private
  */
-router.put('/profile', authMiddleware, updateProfile);
+router.put('/profile', authMiddleware, validateUpdateProfile, updateProfile);
 
 /**
  * @route   POST /api/auth/change-password
  * @desc    Change user password
  * @access  Private
  */
-router.post('/change-password', authMiddleware, changePassword);
+router.post('/change-password', authMiddleware, validateChangePassword, changePassword);
 
 export default router;

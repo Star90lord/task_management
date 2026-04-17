@@ -44,7 +44,7 @@ const gracefulShutdown = async (signal) => {
 let server;
 const startServer = async () => {
   try {
-    console.log(`\n Starting Task Management API...`);
+    console.log('\n Starting Task Management API...');
     console.log(` Environment: ${NODE_ENV}`);
 
     // Connect to MongoDB
@@ -55,12 +55,12 @@ const startServer = async () => {
 
     // Start Express Server
     server = app.listen(PORT, () => {
-      console.log(`\nServer running successfully`);
+      console.log('\nServer running successfully');
       console.log(`Base URL: http://localhost:${PORT}`);
       console.log(`Health Check: http://localhost:${PORT}/health`);
-      console.log(`API Docs: Available at /api/docs (if Swagger is configured)`);
+      console.log('API Docs: Available at /api/docs (if Swagger is configured)');
       console.log(
-        `\nPress Ctrl+C to stop the server\n`
+        '\nPress Ctrl+C to stop the server\n'
       );
     });
 

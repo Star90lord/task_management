@@ -8,13 +8,13 @@ const { Pool } = pkg;
 // PostgreSQL Connection Pool
 const pool = new Pool({
   host: process.env.PG_HOST || 'localhost',
-  port: process.env.PG_PORT || 5432,
+  port: Number(process.env.PG_PORT) || 5432,
   user: process.env.PG_USER || 'postgres',
-  password: process.env.PG_PASSWORD,
+  password: process.env.PG_PASSWORD || '',
   database: process.env.PG_DATABASE || 'taskdb',
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  max: Number(process.env.PG_POOL_MAX) || 20,
+  idleTimeoutMillis: Number(process.env.PG_IDLE_TIMEOUT_MS) || 30000,
+  connectionTimeoutMillis: Number(process.env.PG_CONNECTION_TIMEOUT_MS) || 2000,
 });
 
 // Test the connection
@@ -47,7 +47,7 @@ const initializeDatabase = async () => {
     console.log('✓ PostgreSQL tables initialized successfully');
   } catch (error) {
     console.error('Error initializing PostgreSQL database:', error.message);
-    console.log('⚠ PostgreSQL initialization failed, but server will continue. Some features may not work.');
+    throw error;
   }
 };
 

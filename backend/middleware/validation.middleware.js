@@ -214,6 +214,39 @@ const validateFocusPlan = [
   handleValidationErrors,
 ];
 
+const validateUpdateProfile = [
+  body('name')
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 100 })
+    .withMessage('Name must be between 2 and 100 characters'),
+  body('email')
+    .optional()
+    .trim()
+    .isEmail()
+    .withMessage('Valid email is required')
+    .normalizeEmail(),
+  handleValidationErrors,
+];
+
+const validateChangePassword = [
+  body('oldPassword')
+    .notEmpty()
+    .withMessage('Old password is required'),
+  body('newPassword')
+    .isLength({ min: 8 })
+    .withMessage('New password must be at least 8 characters')
+    .matches(/[A-Z]/)
+    .withMessage('New password must contain at least one uppercase letter')
+    .matches(/[a-z]/)
+    .withMessage('New password must contain at least one lowercase letter')
+    .matches(/[0-9]/)
+    .withMessage('New password must contain at least one number')
+    .matches(/[^a-zA-Z0-9]/)
+    .withMessage('New password must contain at least one special character'),
+  handleValidationErrors,
+];
+
 export {
   validateUserRegistration,
   validateUserLogin,
@@ -222,5 +255,7 @@ export {
   validateTaskId,
   validatePagination,
   validateFocusPlan,
+  validateUpdateProfile,
+  validateChangePassword,
   handleValidationErrors,
 };
